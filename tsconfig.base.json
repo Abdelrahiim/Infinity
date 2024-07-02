@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@infinity/authentication": ["libs/authentication/src/index.ts"],
+      "@infinity/caching": ["libs/caching/src/index.ts"],
+      "@infinity/prisma-connection": ["libs/prisma-connection/src/index.ts"],
+      "@infinity/utils": ["libs/utils/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
