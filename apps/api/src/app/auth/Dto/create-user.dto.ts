@@ -17,13 +17,10 @@ export class CreateUserDto {
   @ValidateIf((o) => !o.provider)
   @IsString()
   @IsNotEmpty({ message: 'Password is required if provider is not provided' })
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    {
-      message:
-        'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character',
-    }
-  )
+  @Matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\da-zA-Z])(?=.*\S).{8,}$/, {
+    message:
+      'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character',
+  })
   password: string;
 
   @IsOptional()

@@ -3,7 +3,7 @@ import { PrismaConnectionService } from '@infinity/prisma-connection';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { SignInUserDto, CreateUserDto } from './Dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { User } from '@prisma/client';
+import { RoleType, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -22,10 +22,11 @@ export class AuthService {
       return;
     }
     await this.validatePassword(signInUserDTO.password, user.password);
-    return this.authenticationService.obtainTokens(
+    const tokens = await this.authenticationService.obtainTokens(
       user.id,
-      signInUserDTO.email
+      user.email
     );
+    return { user, tokens };
   }
   /**
    * Register a new user.
@@ -71,18 +72,26 @@ export class AuthService {
    * Creates a new user in the database.
    *
    * @param {CreateUserDto} createUserDto - The data for creating the user.
-   * @return {Promise<{tokens: Tokens, user: User}>} - The tokens and user data of the created user.
+   * @return {Promise<{tokens: Tokens, user: Partial<User>}>} - The tokens and user data of the created user.
    * @throws {ForbiddenException} - If the credentials are already taken.
    */
-  private async createUser(createUserDto: CreateUserDto) {
+  private async createUser(
+    createUserDto: CreateUserDto
+  ): Promise<{ tokens: Tokens; user: Partial<User> }> {
     try {
       const hashPassword = await this.authenticationService.hashPassword(
         createUserDto.password
       );
+      const roleID = await this.getUserRole();
       const user = await this.db.user.create({
         data: {
           ...createUserDto,
           password: hashPassword,
+          role: {
+            connect: {
+              id: roleID.id,
+            },
+          },
         },
         select: {
           id: true,
@@ -99,9 +108,11 @@ export class AuthService {
           role: {
             select: {
               roleName: true,
-            },
-            include: {
-              RolePermision: true,
+              RolePermision: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -125,5 +136,12 @@ export class AuthService {
         throw error;
       }
     }
+  }
+
+  private getUserRole(roleName?: RoleType) {
+    return this.db.role.findFirst({
+      where: { roleName: roleName ?? RoleType.GUEST },
+      select: { id: true },
+    });
   }
 }
