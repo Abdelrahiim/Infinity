@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from './redis.service';
-import * as fastJson from 'fast-json-stringify';
+import fastJson from 'fast-json-stringify';
 import { parse } from 'simdjson';
 import { encryptKey } from '@infinity/utils';
 
