@@ -17,6 +17,7 @@ enum RoleType {
 }
 
 enum PermisionType {
+  MANAGE
   READ
   CREATE
   UPDATE
