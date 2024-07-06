@@ -1,10 +1,10 @@
 /* eslint-disable */
 
-import axios from 'axios';
+import * as pactum from 'pactum';
 
 module.exports = async function () {
-  // Configure axios for tests to use.
+  // Configure pactum
   const host = process.env.HOST ?? 'localhost';
   const port = process.env.PORT ?? '3000';
-  axios.defaults.baseURL = `http://${host}:${port}`;
+  pactum.request.setBaseUrl(`http://${host}:${port}`);
 };

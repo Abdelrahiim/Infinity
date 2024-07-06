@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Payload, Tokens } from './types';
 import { ConfigService } from '@nestjs/config';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class AuthenticationService {
@@ -38,5 +39,29 @@ export class AuthenticationService {
       accessToken,
       refreshToken,
     };
+  }
+  /**
+   * Async function to hash a password.
+   *
+   * @param {string} password - The password to hash.
+   * @return {Promise<string>} A Promise that resolves to the hashed password.
+   */
+  public async hashPassword(password: string): Promise<string> {
+    const hash = await argon2.hash(password);
+    return hash;
+  }
+  /**
+   * Verifies a password against a hash.
+   *
+   * @param {string} password - The password to verify.
+   * @param {string} hash - The hash to compare against.
+   * @return {Promise<boolean>} A Promise that resolves to a boolean indicating whether the password is valid.
+   */
+  public async verifyPassword(
+    password: string,
+    hash: string
+  ): Promise<boolean> {
+    const isValid = await argon2.verify(hash, password);
+    return isValid;
   }
 }

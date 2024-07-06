@@ -3,7 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -20,15 +20,21 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    })
+  );
   // protection Middlewares
   await app.register(helmet);
 
   await app.register(fastifyCsrf);
-
+  // Enable CORS
   app.enableCors({
     origin: [process.env.CLIENT_URL || 'http://localhost:4200'],
     credentials: true,
   });
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(
